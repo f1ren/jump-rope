@@ -15,6 +15,8 @@ class JumpCounter:
     def __init__(self):
         self._timestamps = []
         self._boxes = []
+        self._all_timestamps = []
+        self._all_boxes = []
         self._count = 0
         self._last_jump_timestamp = None
 
@@ -33,7 +35,7 @@ class JumpCounter:
         df = pd.DataFrame({
             'y': smoothed,
             'v': velocity,
-            'a': acceleration
+            'a': acceleration.shift[-20]
         })
         df['freefall'] = ((df.a + EARTH_GRAVITY).abs() < ACCELERATION_ERROR)
         df['local_maximum'] = ((df.y.shift(1) < df.y) & (df.y.shift(-1) <= df.y))
@@ -52,6 +54,8 @@ class JumpCounter:
 
         self._boxes.append(box)
         self._timestamps.append(timestamp)
+        self._all_boxes.append(box)
+        self._all_timestamps.append(timestamp)
 
         if len(self._boxes) < MIN_N_FRAMES:
             return self._count
@@ -75,8 +79,14 @@ class JumpCounter:
             'box': self._boxes
         }, index=self._timestamps)
 
+    @property
+    def all_df(self):
+        return pd.DataFrame({
+            'box': self._all_boxes
+        }, index=self._all_timestamps)
+
     def dump(self):
-        self.df.to_pickle('boxes_2.df')
+        self.all_df.to_pickle('boxes_2.df')
 
     def __del__(self):
         self.dump()
