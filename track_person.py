@@ -67,7 +67,7 @@ def _init_variables():
     return hog, jump_counter, tracker, video
 
 
-def _update_tracker_get_box(frame, hog, tracker):
+def _get_tracker_get_box(frame, hog, tracker):
     if tracker is None:
         return _init_tracker_if_person_detected(frame, hog)
 
@@ -112,7 +112,7 @@ def main_loop():
         if frame is None:
             break
 
-        box, tracker = _update_tracker_get_box(frame, hog, tracker)
+        box, tracker = _get_tracker_get_box(frame, hog, tracker)
         jumps = _get_jump_count(box, jump_counter, video)
         _show_frame(frame, box, GREEN, jumps)
 
