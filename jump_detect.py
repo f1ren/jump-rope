@@ -35,7 +35,7 @@ class JumpCounter:
         df = pd.DataFrame({
             'y': smoothed,
             'v': velocity,
-            'a': acceleration.shift[-20]
+            'a': acceleration.shift(-20)
         })
         df['freefall'] = ((df.a + EARTH_GRAVITY).abs() < ACCELERATION_ERROR)
         df['local_maximum'] = ((df.y.shift(1) < df.y) & (df.y.shift(-1) <= df.y))
