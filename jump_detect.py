@@ -20,6 +20,9 @@ class JumpCounter:
         self._count = 0
         self._last_jump_timestamp = None
 
+    def _is_height_change(self, new_box):
+        return self._boxes and new_box[3] != self._boxes[-1][3]
+
     def _check_for_jump(self):
         df = self.df
         m_to_p_ratio = MAN_HEIGHT_M / df.box.head(1).item()[3]
@@ -42,8 +45,8 @@ class JumpCounter:
         df['high_enough'] = (df.y - df.y.min()) > person_height * 0.1
 
         if any(df.freefall & df.local_maximum & df.high_enough):
-            self._boxes = self._boxes[:MIN_N_FRAMES]
-            self._timestamps = self._timestamps[:MIN_N_FRAMES]
+            self._boxes = self._boxes[-MIN_N_FRAMES:]
+            self._timestamps = self._timestamps[-MIN_N_FRAMES:]
             return True
 
         return False
@@ -51,6 +54,14 @@ class JumpCounter:
     def count_jumps(self, box, timestamp):
         if box is None:
             return self._count
+
+        if self._is_height_change(box):
+            self._timestamps = []
+            self._boxes = []
+            self._all_timestamps = []
+            self._all_boxes = []
+            self._count = 0
+            self._last_jump_timestamp = None
 
         self._boxes.append(box)
         self._timestamps.append(timestamp)
