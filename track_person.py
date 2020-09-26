@@ -6,7 +6,7 @@ import numpy as np
 from jump_detect import JumpCounter
 
 VIDEO_SOURCE = 0  # Camera input
-VIDEO_SOURCE = 'rope_jump_2.mp4'  # File input
+VIDEO_SOURCE = 'rope_jump_3.mp4'  # File input
 
 BOUNDING_BOX_SCALE_FACTOR = 0.7
 
@@ -18,11 +18,13 @@ def _show_frame(frame, box, color, jumps):
     if box is not None:
         (x, y, w, h) = map(int, box)
         cv2.rectangle(frame, (x, y), (x + w, y + h), color, 3)
-        cv2.putText(frame, f'{jumps}', (10, 195), cv2.FONT_HERSHEY_SIMPLEX, 4, (36, 255, 12), 2)
+        cv2.putText(frame, f'{jumps}', (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (36, 255, 12), 6)
     cv2.imshow("Video", frame)
 
 
 def _scale_box(box, f):
+    if box is None:
+        return None
     (x, y, w, h) = box
     return x + int(.5 * w * (1 - f)), y + int(.5 * h * (1 - f)), w * f, h * f
 
@@ -32,7 +34,7 @@ def _smaller_box(box):
 
 
 def _bigger_box(box):
-    return _scale_box(box, BOUNDING_BOX_SCALE_FACTOR)
+    return _scale_box(box, 1/BOUNDING_BOX_SCALE_FACTOR)
 
 
 def _init_tracker_and_box(cnts, frame, weights):
@@ -114,7 +116,7 @@ def main_loop():
 
         box, tracker = _get_tracker_get_box(frame, hog, tracker)
         jumps = _get_jump_count(box, jump_counter, video)
-        _show_frame(frame, box, GREEN, jumps)
+        _show_frame(frame, _bigger_box(box), GREEN, jumps)
 
         if _q_key_pressed():
             break
