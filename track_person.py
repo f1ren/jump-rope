@@ -34,7 +34,7 @@ def _smaller_box(box):
 
 
 def _bigger_box(box):
-    return _scale_box(box, 1/BOUNDING_BOX_SCALE_FACTOR)
+    return _scale_box(box, 0.9/BOUNDING_BOX_SCALE_FACTOR)
 
 
 def _init_tracker_and_box(cnts, frame, weights):
